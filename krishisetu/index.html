@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KrishiSetu - Bridging the Crop Insurance Gap</title>
+  <meta name="description" content="A digitized crop insurance claim platform for farmers, NGOs, and insurers. Prevents late rejections through geotagged visual evidence and satellite weather checks.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand-section">
+          <div class="brand-logo">
+            <!-- SVG Plant Leaf Logo -->
+            <svg viewBox="0 0 24 24">
+              <path d="M17 8C8 10 5.9 16.1 5 21C6.1 19.3 8.3 18.2 11 18C11 15 13 13 16 13C16 10 18.8 8.8 17 8Z" />
+              <path d="M12 2C8 3.5 6 7 5 11C8 9.5 11 9.5 14 11C14 7 16 4 12 2Z" fill-opacity="0.7" />
+            </svg>
+          </div>
+          <div class="brand-name">KrishiSetu</div>
+        </div>
+
+        <nav class="nav-menu">
+          <div class="nav-label">Portals</div>
+          <a class="nav-item active" id="nav-public" onclick="switchView('public')">
+            <svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 16l4-4 4 4 6-6" /></svg>
+            Public Dashboard
+          </a>
+          <a class="nav-item" id="nav-farmer" onclick="switchView('farmer')">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" /></svg>
+            Farmer Portal
+          </a>
+          <a class="nav-item" id="nav-ngo" onclick="switchView('ngo')">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14-1.2a3 3 0 0 1 0 5.8M16 3.1a3 3 0 0 1 0 5.8" /></svg>
+            NGO Field Agent
+            <span class="badge-count" id="ngo-badge">1</span>
+          </a>
+          <a class="nav-item" id="nav-insurer" onclick="switchView('insurer')">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+            Insurer Portal
+            <span class="badge-count accent" id="insurer-badge">1</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Role Switcher (Simulator control) -->
+      <div class="role-badge-container">
+        <span class="simulator-title">SIMULATOR CONTROL</span>
+        <div class="role-switcher">
+          <button class="role-btn active" id="role-public" onclick="setSimulatedRole('public')">
+            <span>Public / Observer</span>
+            <div class="role-indicator"></div>
+          </button>
+          <button class="role-btn" id="role-farmer" onclick="setSimulatedRole('farmer')">
+            <span>Farmer (Wadwani)</span>
+            <div class="role-indicator"></div>
+          </button>
+          <button class="role-btn" id="role-ngo" onclick="setSimulatedRole('ngo')">
+            <span>NGO Field Agent</span>
+            <div class="role-indicator"></div>
+          </button>
+          <button class="role-btn" id="role-insurer" onclick="setSimulatedRole('insurer')">
+            <span>Bima Claims Officer</span>
+            <div class="role-indicator"></div>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Viewport Area -->
+    <main class="main-content">
+      
+      <!-- Top Header Bar -->
+      <header class="top-bar">
+        <div class="breadcrumb-section">
+          <h2 class="breadcrumb-title" id="portal-title">Public Analytics Dashboard</h2>
+          <span class="breadcrumb-subtitle" id="portal-subtitle">Statewide Climate Damage & Insurance Claim Insights</span>
+        </div>
+        <div class="status-pills">
+          <div class="status-pill">
+            <div class="status-pill-dot pulse"></div>
+            <span>Mock Sync Engine: Online</span>
+          </div>
+          <div class="status-pill">
+            <span id="global-settled-count">₹0.00</span> Settled
+          </div>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <div class="view-viewport">
+
+        <!-- 1. PUBLIC DASHBOARD VIEW -->
+        <section id="view-public" class="view-section active">
+          <!-- KPI Metrics Row -->
+          <div class="grid-4">
+            <div class="metric-card">
+              <div class="metric-label">Avg. Resolution Time</div>
+              <div class="metric-value" id="kpi-resolution-time">3.5 Days</div>
+              <div class="metric-desc">Traditional process: <span class="negative">145+ Days</span></div>
+            </div>
+            <div class="metric-card info">
+              <div class="metric-label">Claims Processed (Digitized)</div>
+              <div class="metric-value" id="kpi-total-processed">342</div>
+              <div class="metric-desc">Zero manual digitization latency</div>
+            </div>
+            <div class="metric-card alert">
+              <div class="metric-label">Evidence Verification Rate</div>
+              <div class="metric-value" id="kpi-evidence-rate">98.4%</div>
+              <div class="metric-desc">Validated via Geotag + Weather logs</div>
+            </div>
+            <div class="metric-card danger">
+              <div class="metric-label">Claim Rejection Rate</div>
+              <div class="metric-value" id="kpi-rejection-rate">12.1%</div>
+              <div class="metric-desc">Reduced from <span class="negative">64.5%</span> (late filers)</div>
+            </div>
+          </div>
+
+          <!-- Map and Detail Split -->
+          <div class="grid-2">
+            <!-- Left: Maharashtra Map representation -->
+            <div class="glass-panel">
+              <div class="panel-header">
+                <div class="panel-title">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Maharashtra Climate Damage Mapping
+                </div>
+                <span class="badge settled">Live Anomaly Map</span>
+              </div>
+              <div class="map-container" id="maharashtra-map">
+                <!-- SVG outline mockup map of Maharashtra with highlighted claim hotspots -->
+                <svg class="map-svg-mock" viewBox="0 0 500 350" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Custom path outlining Maharashtra shape -->
+                  <path d="M40 180 C 60 120, 100 80, 150 70 C 200 60, 240 80, 290 60 C 340 40, 390 50, 440 80 C 470 100, 480 140, 460 170 C 440 200, 420 220, 390 230 C 360 240, 330 220, 300 240 C 270 260, 250 300, 220 310 C 180 320, 140 290, 110 270 C 80 250, 50 240, 40 180 Z" fill="#1b2420" stroke="rgba(25, 135, 84, 0.4)" stroke-width="3" />
+                  <!-- Grid details mimicking coordinate lines -->
+                  <line x1="100" y1="50" x2="100" y2="300" stroke="rgba(255,255,255,0.03)" />
+                  <line x1="200" y1="50" x2="200" y2="300" stroke="rgba(255,255,255,0.03)" />
+                  <line x1="300" y1="50" x2="300" y2="300" stroke="rgba(255,255,255,0.03)" />
+                  <line x1="400" y1="50" x2="400" y2="300" stroke="rgba(255,255,255,0.03)" />
+                  <line x1="50" y1="100" x2="450" y2="100" stroke="rgba(255,255,255,0.03)" />
+                  <line x1="50" y1="200" x2="450" y2="200" stroke="rgba(255,255,255,0.03)" />
+                </svg>
+
+                <!-- Dynamic Absolute Pins positioned relative to map coordinates -->
+                <div class="map-pin" style="left: 32%; top: 62%;" data-district="Beed">
+                  <div class="pin-circle submitted"></div>
+                  <div class="pin-pulse submitted"></div>
+                </div>
+                <div class="map-pin" style="left: 20%; top: 38%;" data-district="Nashik">
+                  <div class="pin-circle audited"></div>
+                  <div class="pin-pulse audited"></div>
+                </div>
+                <div class="map-pin" style="left: 45%; top: 54%;" data-district="Latur">
+                  <div class="pin-circle settled"></div>
+                  <div class="pin-pulse settled"></div>
+                </div>
+                <div class="map-pin" style="left: 55%; top: 46%;" data-district="Yavatmal">
+                  <div class="pin-circle rejected"></div>
+                </div>
+                
+                <div class="map-legend">
+                  <div class="legend-item"><div class="legend-color" style="background-color: var(--accent-teal)"></div>Submitted Claim</div>
+                  <div class="legend-item"><div class="legend-color" style="background-color: var(--warning-gold)"></div>NGO Inspected</div>
+                  <div class="legend-item"><div class="legend-color" style="background-color: var(--primary-light)"></div>Approved (Settled)</div>
+                  <div class="legend-item"><div class="legend-color" style="background-color: var(--danger-crimson)"></div>Rejected (Inconsistent)</div>
+                </div>
+
+                <!-- Hover Map Tooltip -->
+                <div class="map-tooltip" id="map-tooltip">
+                  <strong>Nashik District</strong><br>Claims: 12<br>Primary Risk: Hailstorm
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Dynamic statistics widget -->
+            <div class="glass-panel">
+              <div class="panel-header">
+                <div class="panel-title">Crop Risk & Impact Analytics</div>
+              </div>
+              <div class="mb-4">
+                <h4 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">Top Crop Damage Factors</h4>
+                <div class="chart-bar-container">
+                  <span class="chart-bar-label">Excess Rain</span>
+                  <div class="chart-bar-track"><div class="chart-bar-fill" style="width: 48%;"></div></div>
+                  <span class="chart-bar-value">48%</span>
+                </div>
+                <div class="chart-bar-container">
+                  <span class="chart-bar-label">Hailstorm</span>
+                  <div class="chart-bar-track"><div class="chart-bar-fill warning" style="width: 32%;"></div></div>
+                  <span class="chart-bar-value">32%</span>
+                </div>
+                <div class="chart-bar-container">
+                  <span class="chart-bar-label">Drought</span>
+                  <div class="chart-bar-track"><div class="chart-bar-fill accent" style="width: 20%;"></div></div>
+                  <span class="chart-bar-value">20%</span>
+                </div>
+              </div>
+
+              <div>
+                <h4 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">Claim Reject Factors (Old vs New)</h4>
+                <div class="chart-bar-container">
+                  <span class="chart-bar-label">Late Filing</span>
+                  <div class="chart-bar-track"><div class="chart-bar-fill danger" style="width: 8%;"></div></div>
+                  <span class="chart-bar-value">8%</span>
+                </div>
+                <div class="chart-bar-container">
+                  <span class="chart-bar-label">No Evidence</span>
+                  <div class="chart-bar-track"><div class="chart-bar-fill danger" style="width: 4%;"></div></div>
+                  <span class="chart-bar-value">4%</span>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+                  * The old paper process saw a 64% rejection rate, dominated by 'Late Filing' (>45 days delay) and 'Insufficient Evidence' (paper surveys without geotagged images).
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. FARMER PORTAL VIEW -->
+        <section id="view-farmer" class="view-section">
+          
+          <!-- Inner Tab Buttons -->
+          <div class="flex-space mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+            <div style="display: flex; gap: 12px;">
+              <button class="btn" style="padding: 8px 16px; font-size: 0.85rem;" onclick="toggleFarmerTab('new-claim')">File Crop Claim</button>
+              <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="toggleFarmerTab('my-claims')">My Active Claims</button>
+            </div>
+            <span class="badge settled" style="text-transform: none;">Logged in: Farmer (Beed)</span>
+          </div>
+
+          <!-- Farmer Layout -->
+          <div class="farmer-layout">
+            
+            <!-- Left Panel: Content changes based on Tab -->
+            <div class="glass-panel" id="farmer-form-tab">
+              <div class="panel-header">
+                <div class="panel-title">Visual Crop Loss Declaration</div>
+                <span class="badge submitted">Instant Geotagging</span>
+              </div>
+              
+              <form id="claimForm" onsubmit="handleClaimSubmit(event)">
+                <div class="form-group">
+                  <label class="form-label" for="policy-search">Aadhaar / Policy Number</label>
+                  <select class="form-control" id="policy-select" onchange="autoFillPolicyInfo()" required>
+                    <option value="">-- Select Registered Policy --</option>
+                  </select>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Farmer Name</label>
+                    <input type="text" class="form-control" id="farmer-name-display" readonly placeholder="Select a policy first">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">District / Tehsil</label>
+                    <input type="text" class="form-control" id="farmer-district-display" readonly placeholder="Select a policy first">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="crop-type">Insured Crop</label>
+                    <input type="text" class="form-control" id="farmer-crop-display" readonly placeholder="Select a policy first">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="damage-date">Date of Damage Event</label>
+                    <input type="date" class="form-control" id="damage-date" required max="2026-07-21">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="damage-cause">Primary Cause of Loss</label>
+                  <select class="form-control" id="damage-cause" required>
+                    <option value="">-- Select Cause --</option>
+                    <option value="Hailstorm">Unseasonal Hailstorm / Gale Winds</option>
+                    <option value="Excess Rain">Excess Rainfall & Flash Flooding</option>
+                    <option value="Drought">Drought & Monsoon Dry Spell</option>
+                  </select>
+                </div>
+
+                <!-- Simulation Dropzone File Upload -->
+                <div class="form-group">
+                  <label class="form-label">Upload Crop Damage Photograph</label>
+                  <div class="evidence-dropzone" id="evidence-dropzone" onclick="triggerSimulationUpload()">
+                    <div class="evidence-icon">
+                      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+                    <p class="sync-title">Simulate Smartphone Photo Capture</p>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Clicks here will automatically extract Geotag coordinates & timestamp.</p>
+                  </div>
+
+                  <!-- Evidence Preview with dynamic EXIF overlay -->
+                  <div class="evidence-preview-container" id="evidence-preview-box">
+                    <div class="evidence-preview-img-wrapper">
+                      <img src="" id="evidence-preview-img" class="evidence-preview-img" alt="Crop Damage Photo">
+                      <div class="metadata-overlay">
+                        <div class="metadata-item"><span>DEVICE:</span><span>Redmi Note 12 5G</span></div>
+                        <div class="metadata-item"><span>GPS:</span><span class="highlight" id="exif-gps">18.9892° N, 75.7601° E</span></div>
+                        <div class="metadata-item"><span>TIMESTAMP:</span><span id="exif-time">2026-07-21 17:15:40</span></div>
+                        <div class="metadata-item"><span>ACCURACY:</span><span class="text-success">±3.2 Meters</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="estimated-loss">Estimated Loss Percentage (%)</label>
+                  <input type="range" min="10" max="100" value="70" class="form-control" style="padding:0; height:8px;" id="estimated-loss" oninput="document.getElementById('loss-val-label').innerText = this.value + '%'">
+                  <div class="flex-space" style="margin-top: 6px;">
+                    <span style="font-size:0.75rem; color:var(--text-muted)">Partial Damage (10%)</span>
+                    <strong style="color: var(--primary-light)" id="loss-val-label">70%</strong>
+                    <span style="font-size:0.75rem; color:var(--text-muted)">Total Destruction (100%)</span>
+                  </div>
+                </div>
+
+                <button class="btn w-100" type="submit" id="submit-claim-btn" style="width: 100%;">
+                  Submit Digitized Claim Instance
+                </button>
+              </form>
+            </div>
+
+            <!-- Alternate Tab: My claims list -->
+            <div class="glass-panel" id="farmer-list-tab" style="display: none;">
+              <div class="panel-header">
+                <div class="panel-title">My Filed Claims</div>
+              </div>
+              <div class="claims-list" id="farmer-claims-list-container">
+                <!-- Dynamically Rendered Farmer claims -->
+              </div>
+            </div>
+
+            <!-- Right Panel: Claim Tracker Details -->
+            <div class="glass-panel" id="farmer-tracker-panel">
+              <div class="panel-header">
+                <div class="panel-title">Claim Timeline Progress</div>
+                <span class="badge submitted" id="tracker-claim-status-badge">Select a claim</span>
+              </div>
+
+              <div id="tracker-empty-state" class="empty-detail-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <p>Select an active claim from "My Claims" tab or submit a new one to view real-time validation tracking.</p>
+              </div>
+
+              <div id="tracker-active-content" style="display: none;">
+                <div class="flex-space" style="margin-bottom: 20px;">
+                  <div>
+                    <h3 id="tracker-claim-id" style="font-family: monospace; color: var(--primary-light);">KS-2026-101</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);" id="tracker-claim-date">Filed: 2026-07-21</p>
+                  </div>
+                  <div class="claim-loss-value severe" id="tracker-claim-loss">85% Loss</div>
+                </div>
+
+                <!-- Process Steps Tracker -->
+                <div class="claim-timeline">
+                  <div class="timeline-step completed" id="step-filed">
+                    <div class="step-node">1</div>
+                    <div class="step-label">Claim Filed</div>
+                  </div>
+                  <div class="timeline-step" id="step-ngo">
+                    <div class="step-node">2</div>
+                    <div class="step-label">NGO Inspected</div>
+                  </div>
+                  <div class="timeline-step" id="step-weather">
+                    <div class="step-node">3</div>
+                    <div class="step-label">Weather Checks</div>
+                  </div>
+                  <div class="timeline-step" id="step-settled">
+                    <div class="step-node">4</div>
+                    <div class="step-label">Settlement</div>
+                  </div>
+                </div>
+
+                <div class="glass-panel" style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 16px; font-size: 0.85rem;">
+                  <h4 style="color: #fff; margin-bottom: 8px;">Automated Auditing Log</h4>
+                  <ul style="padding-left: 20px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 8px;" id="tracker-audit-logs">
+                    <li>[2026-07-21] Digital claim uploaded. Metadata checked (Matches Beed agricultural zone).</li>
+                    <li>[2026-07-21] GPS logs dispatched to local NGO (Krishi Mitra Wadwani branch) for field verification.</li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 3. NGO AUDITOR PORTAL VIEW -->
+        <section id="view-ngo" class="view-section">
+          <!-- Digital Sync Status Header -->
+          <div class="sync-banner">
+            <div class="sync-info">
+              <svg class="sync-status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <div>
+                <span class="sync-title">NGO Digital Audit Sync Dashboard</span>
+                <p class="sync-desc" id="sync-status-text">All inspection reports successfully pushed to insurance servers.</p>
+              </div>
+            </div>
+            <button class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.75rem;" onclick="simulateOfflineMode()" id="offline-sim-btn">
+              Simulate Offline Mode (Rural Areas)
+            </button>
+          </div>
+
+          <!-- Audit Split Pane -->
+          <div class="audit-workspace">
+            
+            <!-- Left: List of claims needing audit -->
+            <div class="scroll-pane">
+              <div class="panel-header" style="background: var(--bg-secondary); padding: 12px 20px; border-radius: var(--border-radius-sm); margin-bottom: 12px;">
+                <div class="panel-title">Pending Physical Audits</div>
+              </div>
+              <div class="claims-list" id="ngo-pending-list">
+                <!-- Dynamically loaded list of submitted claims -->
+              </div>
+            </div>
+
+            <!-- Right: Digital Assessment Sheet -->
+            <div class="detail-pane" id="ngo-audit-details">
+              <div id="ngo-empty-state" class="empty-detail-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                <p>Select a claim from the inspection list to fill out the digital loss assessment audit.</p>
+              </div>
+
+              <!-- Interactive Verification Sheet -->
+              <div id="ngo-active-content" style="display: none; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                <div>
+                  <div class="flex-space" style="margin-bottom: 16px;">
+                    <div>
+                      <h3 style="font-family: monospace; color: var(--primary-light);" id="ngo-claim-id">KS-2026-101</h3>
+                      <p style="font-size: 0.8rem; color: var(--text-muted);" id="ngo-claim-farmer">Farmer: Ananda Rao Patil</p>
+                    </div>
+                    <span class="badge submitted" id="ngo-claim-cause">Drought</span>
+                  </div>
+
+                  <!-- Claim evidence photo display -->
+                  <div class="visual-evidence-wrapper">
+                    <img src="" id="ngo-evidence-img" alt="Crop Damage Evidence">
+                    <div class="metadata-overlay">
+                      <div class="metadata-item"><span>DEVICE:</span><span>Exif Extracted GPS</span></div>
+                      <div class="metadata-item"><span>COORDS:</span><span class="highlight" id="ngo-evidence-gps">18.9892° N, 75.7601° E</span></div>
+                    </div>
+                  </div>
+
+                  <!-- Policy cross reference grid -->
+                  <div class="kv-grid">
+                    <div class="kv-item"><span class="kv-lbl">Policy Number</span><span class="kv-val" id="ngo-policy-no">PMFBY-MH-98432</span></div>
+                    <div class="kv-item"><span class="kv-lbl">Insured Crop</span><span class="kv-val" id="ngo-crop-type">Soybean</span></div>
+                    <div class="kv-item"><span class="kv-lbl">Claimed Loss %</span><span class="kv-val" id="ngo-claimed-loss">85%</span></div>
+                    <div class="kv-item"><span class="kv-lbl">Location Coordinates</span><span class="kv-val" id="ngo-coords-match">Match (Zone 4)</span></div>
+                  </div>
+
+                  <!-- Audit Input fields -->
+                  <div class="form-group">
+                    <label class="form-label" for="ngo-verified-loss">NGO Verified Crop Loss (%)</label>
+                    <input type="range" min="0" max="100" value="80" class="form-control" style="padding:0; height:8px;" id="ngo-verified-loss" oninput="document.getElementById('ngo-loss-lbl').innerText = this.value + '%'">
+                    <div class="flex-space" style="margin-top: 4px;">
+                      <span style="font-size: 0.75rem; color: var(--text-muted);">No damage</span>
+                      <strong id="ngo-loss-lbl" class="text-warning">80%</strong>
+                      <span style="font-size: 0.75rem; color: var(--text-muted);">100% loss</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="ngo-audit-notes">Field Observation Notes</label>
+                    <textarea class="form-control" id="ngo-audit-notes" rows="3" placeholder="Enter details of damage, root condition, and localized weather factors..."></textarea>
+                  </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                  <button class="btn" style="width: 100%;" onclick="submitNgoAudit()">
+                    Digitally Sign & Sync Verification Report
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 4. INSURER PORTAL VIEW -->
+        <section id="view-insurer" class="view-section">
+          <!-- Priority Inbox & Assessment Workspace -->
+          <div class="audit-workspace" style="height: 620px;">
+            
+            <!-- Left: Audited claims waiting for weather matches -->
+            <div class="scroll-pane">
+              <div class="panel-header" style="background: var(--bg-secondary); padding: 12px 20px; border-radius: var(--border-radius-sm); margin-bottom: 12px;">
+                <div class="panel-title">Claims Processing Queue</div>
+              </div>
+              <div class="claims-list" id="insurer-pending-list">
+                <!-- Dynamically loaded list of NGO audited claims -->
+              </div>
+            </div>
+
+            <!-- Right: Automated Satellite Weather Verification & Settlement -->
+            <div class="detail-pane" id="insurer-detail-pane">
+              
+              <div id="insurer-empty-state" class="empty-detail-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <p>Select a claim from the insurance queue to review automated weather analysis and process payout settlement.</p>
+              </div>
+
+              <!-- Main details content -->
+              <div id="insurer-active-content" style="display: none; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                
+                <div>
+                  <div class="flex-space" style="margin-bottom: 14px;">
+                    <div>
+                      <h3 style="font-family: monospace; color: var(--primary-light);" id="insurer-claim-id">KS-2026-102</h3>
+                      <p style="font-size: 0.8rem; color: var(--text-muted);" id="insurer-claim-farmer">Farmer: Sanjay Namdeo Shinde</p>
+                    </div>
+                    <span class="badge audited" id="insurer-claim-status-badge">NGO Audited</span>
+                  </div>
+
+                  <!-- Visual evidence and GPS cross check -->
+                  <div class="grid-2" style="margin-bottom: 14px; grid-template-columns: 1.2fr 1fr;">
+                    <div>
+                      <div class="visual-evidence-wrapper" style="height: 140px; margin-bottom: 0;">
+                        <img src="" id="insurer-evidence-img" alt="Crop Damage Evidence">
+                      </div>
+                    </div>
+                    <div style="font-size: 0.8rem;">
+                      <h5 style="color: #fff; margin-bottom: 6px;">Field Geotag Audit</h5>
+                      <p style="color: var(--text-secondary); margin-bottom: 4px;">Lat: <span id="insurer-lat">20.0812</span>, Lng: <span id="insurer-lng">74.1105</span></p>
+                      <p style="color: var(--text-secondary); margin-bottom: 4px;">District: <span id="insurer-district">Nashik</span></p>
+                      <p class="text-success" style="font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                        GPS Matches Land Register
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="kv-grid" style="margin-bottom: 12px;">
+                    <div class="kv-item"><span class="kv-lbl">Insured Sum</span><span class="kv-val" id="insurer-sum-insured">₹60,000</span></div>
+                    <div class="kv-item"><span class="kv-lbl">NGO Verified Loss</span><span class="kv-val" id="insurer-ngo-loss">90%</span></div>
+                  </div>
+
+                  <!-- Automated Weather Match Engine widget -->
+                  <div class="weather-crosscheck">
+                    <div class="weather-header">
+                      <span class="weather-title">Satellite Weather Cross-Check</span>
+                      <span class="weather-match-badge matched" id="weather-crosscheck-verdict-badge">MATCH FOUND</span>
+                    </div>
+
+                    <div class="weather-grid">
+                      <div class="weather-metric">
+                        <div class="weather-val" id="weather-precipitation">52mm</div>
+                        <div class="weather-lbl">Precipitation</div>
+                      </div>
+                      <div class="weather-metric">
+                        <div class="weather-val" id="weather-deviation">+300%</div>
+                        <div class="weather-lbl">Rain Deviation</div>
+                      </div>
+                      <div class="weather-metric">
+                        <div class="weather-val" id="weather-crop-match">Match</div>
+                        <div class="weather-lbl">Risk Profile</div>
+                      </div>
+                    </div>
+
+                    <div class="weather-verdict alert-success" id="weather-verdict-log">
+                      Satellite records show extreme Hailstorm on 2026-07-15. Correlates with crop damage dates.
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="insurer-notes">Claims Analyst Decision Notes</label>
+                    <textarea class="form-control" id="insurer-notes" rows="2" placeholder="Provide notes regarding the approval or rejection..."></textarea>
+                  </div>
+                </div>
+
+                <div class="grid-2" style="grid-template-columns: 1.5fr 1fr; margin-top: 16px; gap: 12px; margin-bottom: 0;">
+                  <button class="btn" onclick="processInsurerDecision(true)">
+                    Approve & Disburse Payout
+                  </button>
+                  <button class="btn btn-danger" onclick="openRejectionModal()">
+                    Reject Claim
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Rejection Reason Modal -->
+  <div class="modal-overlay" id="rejection-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Select Rejection Reason</h3>
+        <button class="modal-close" onclick="closeRejectionModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Select the official regulatory reason code for rejecting this claim. This will be instantly pushed to the farmer's portal.
+        </p>
+        <div class="form-group">
+          <label class="form-label" for="rejection-select">Reason Code</label>
+          <select class="form-control" id="rejection-select" required>
+            <option value="">-- Select Reason --</option>
+            <option value="Inconsistent Evidence">Inconsistent Damage Evidence (Photos show healthy crops)</option>
+            <option value="No Matching Weather Anomaly">No Weather Anomaly Found (Normal satellite records)</option>
+            <option value="GPS Discrepancy">GPS Coordinates Outside Land Register Polygon</option>
+            <option value="Policy Expired">Policy Expired Prior to Event Date</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeRejectionModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="submitClaimRejection()">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DBT Animation / Settlement Modal -->
+  <div class="modal-overlay" id="settlement-modal">
+    <div class="modal-card text-center" style="max-width: 440px;">
+      <div style="margin-bottom: 20px;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(25, 135, 84, 0.1); border: 2px solid var(--primary-light); display: inline-flex; align-items: center; justify-content: center; color: var(--primary-light); animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+          <!-- SVG Checkmark -->
+          <svg width="40" height="40" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022z"/></svg>
+        </div>
+      </div>
+      <h3 class="modal-title" style="margin-bottom: 8px;">Claim Disbursed Successfully</h3>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+        Direct Benefit Transfer (DBT) has been initiated via National Payments Corporation of India (NPCI) Aadhaar Bridge.
+      </p>
+
+      <div class="glass-panel" style="background: rgba(255,255,255,0.02); text-align: left; padding: 14px 20px; font-size: 0.8rem; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Payout Recipient:</span><strong id="dbt-farmer" class="text-success">Ananda Rao Patil</strong></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Disbursed Amount:</span><strong id="dbt-amount">₹38,250</strong></div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;"><span>Bank Transaction ID:</span><span style="font-family: monospace;">TXN-NPCI-894723902</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>Aadhaar Link Status:</span><span class="text-success">Verified Active</span></div>
+      </div>
+
+      <button class="btn" style="width: 100%;" onclick="closeSettlementModal()">Done</button>
+    </div>
+  </div>
+
+  <!-- Load Scripts -->
+  <script src="mockData.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
