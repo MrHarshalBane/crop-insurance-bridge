@@ -32,7 +32,7 @@ KrishiSetu demonstrates a closed-loop digital solution through three interconnec
 ## 🛠️ Tech Stack & Architecture
 
 * **Frontend**: Vanilla HTML5, CSS3, and JavaScript (ES6+).
-* **Design System**: Fully custom, responsive, earthy dark-theme CSS with glassmorphic cards, custom KPI widgets, and timeline components.
+* **Design System**: Clean, accessible light civic-tech design system with responsive KPI widgets, interactive Maharashtra claim hotspot map, and real-time audit sync.
 * **Database**: Local in-memory state engine preloaded with realistic farmer policies and satellite weather records.
 
 ---
